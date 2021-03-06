@@ -23,6 +23,21 @@ app.get('/config', (req, res) => {
   });
 });
 
+app.get('/html', (req, res) => {
+  const { webpackBridge } = res;
+  const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
+  const data = {
+    lang: res.getHeaders().lang,
+    // serialized variables with serialize-javascript
+    SERVER_GLOBALS: webpackBridge.setGlobals({
+      __CURRENT_USER__: { name: 'name' },
+      __REDUX_INITIAL_STATE__: { environment: process.env.NODE_ENV },
+    }),
+  };
+  res.json({ data, htmlTemplate });
+
+})
+
 app.get('/', (req, res) => {
   const { webpackBridge } = res;
   const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
@@ -34,13 +49,11 @@ app.get('/', (req, res) => {
       __REDUX_INITIAL_STATE__: { environment: process.env.NODE_ENV },
     }),
   };
-  res.json({ data });
-
   // Compatible with react-create-app html template
   // const options = ctx.webpackBridge.ejsSyntaxOptions('cutom'); // {%= variable %}
   // const html = ejs.render(htmlTemplate, data, options);
 
-  // res.send(html);
+  res.send(htmlTemplate);
 });
 
 app.listen(process.env.PORT || 3000);
