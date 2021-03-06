@@ -1,5 +1,10 @@
+import * as fs from 'fs';
 import * as serialize from 'serialize-javascript';
 const isObject = require('is-object');
+export interface IWebpackBridgeOptions {
+  webpackOutputFolder: string;
+  handlePaths: string[];
+}
 export interface IDevMiddleware {
   stats: { toJson: () => any };
   outputFileSystem: { readFileSync: (arg0: string, arg1: string) => any };
@@ -14,19 +19,36 @@ function normalizeAssets(assets: any) {
   return Array.isArray(assets) ? assets : [assets];
 }
 
+class NotFoundDevMiddlewareError extends Error {}
+
 export class WebpackBridge {
-  constructor(public devMiddleware: IDevMiddleware) {}
+  webpackOutputFolder: string;
+  constructor(
+    options: IWebpackBridgeOptions,
+    public devMiddleware?: IDevMiddleware | null,
+  ) {
+    this.webpackOutputFolder = options && options.webpackOutputFolder;
+  }
+
+  checkDevMiddleware() {
+    if (this.devMiddleware) return false;
+    throw new NotFoundDevMiddlewareError();
+  }
 
   // json with all compiled files and uniq names
+  // TODO implement read manifest file
   get assetsByChunkName() {
-    return this.devMiddleware.stats.toJson().assetsByChunkName;
+    if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
+    return this.jsonWebpackStats.assetsByChunkName;
   }
 
   get jsonWebpackStats() {
+    if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
     return this.devMiddleware.stats.toJson();
   }
 
   get outputPath() {
+    if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
     return this.jsonWebpackStats.outputPath;
   }
 
@@ -68,10 +90,21 @@ export class WebpackBridge {
   }
 
   html(name = 'index.html') {
-    if (!this.devMiddleware.outputFileSystem)
+    if (this.devMiddleware) {
+      return this.htmlFromDevMiddleware(name);
+    } else {
+      return fs.readFileSync(`${this.webpackOutputFolder}/${name}`, 'utf8');
+    }
+  }
+
+  htmlFromDevMiddleware(name: string) {
+    if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
+
+    if (!this.devMiddleware.outputFileSystem) {
       throw new Error(
         'webpack outputFileSystem is not available. Make sure set { index: true, serverSideRender: true } in webpackDevMiddleware',
       );
+    }
     return this.devMiddleware.outputFileSystem.readFileSync(
       `${this.outputPath}/${name}`,
       'utf8',

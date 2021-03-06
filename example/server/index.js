@@ -1,20 +1,28 @@
 const ejs = require('ejs');
 const fs = require('fs');
-const webpack = require('webpack');
-const webpackDevmiddleware = require('webpack-dev-middleware');
 const { webpackDevBridge } = require('../../lib/webpackDevBridge');
 const webpackConfig = require('../client/webpack.config');
 
-const app = require('express')();
+const express = require('express');
+const app = express();
 
+console.log('*****', process.env.NODE_ENV)
 // Required for handler HTML in the server side
-app.use(
-  webpackDevmiddleware(webpack(webpackConfig), {
-    index: false,
-    serverSideRender: true,
-  }),
-);
-app.use(webpackDevBridge());
+
+if (!process.env.NODE_ENV === 'production') {
+  const webpack = require('webpack');
+  const webpackDevmiddleware = require('webpack-dev-middleware');
+
+  app.use(
+    webpackDevmiddleware(webpack(webpackConfig), {
+      index: false,
+      serverSideRender: true,
+    }),
+  );
+}
+
+// app.use(express.static('./dist'))
+app.use(webpackDevBridge({ webpackOutputFolder: './dist' }));
 
 app.get('/config', (req, res) => {
   const { webpackBridge } = res;
@@ -33,7 +41,7 @@ app.get('/html', (req, res) => {
     // serialized variables with serialize-javascript
     SERVER_GLOBALS: webpackBridge.setGlobals({
       __CURRENT_USER__: { name: 'name' },
-      __REDUX_INITIAL_STATE__: { environment: process.env.NODE_ENV },
+      environment: { environment: process.env.NODE_ENV },
     }),
   };
   res.json({ data, htmlTemplate });
@@ -54,6 +62,8 @@ app.get('/', (req, res) => {
   };
   // Compatible with html template
   const html = ejs.render(htmlTemplate, data, webpackBridge.ejsSyntaxOptions);
+  // res.json({html});
+
   res.send(html);
 });
 
