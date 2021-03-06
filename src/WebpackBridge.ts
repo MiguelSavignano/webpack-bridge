@@ -21,6 +21,14 @@ export class WebpackBridge {
     return this.jsonWebpackStats.outputPath;
   }
 
+  get ejsSyntaxOptions() {
+    return {
+      delimiter: '%',
+      openDelimiter: '{',
+      closeDelimiter: '}',
+    };
+  }
+
   html(name = 'index.html') {
     if (!this.devMiddleware.outputFileSystem)
       throw new Error(

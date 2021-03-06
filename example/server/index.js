@@ -52,11 +52,7 @@ app.get('/', (req, res) => {
     }),
   };
   // Compatible with html template
-  const html = ejs.render(htmlTemplate, data,  {
-    delimiter: '%',
-    openDelimiter: '{',
-    closeDelimiter: '}',
-  },);
+  const html = ejs.render(htmlTemplate, data, webpackBridge.ejsSyntaxOptions);
   res.send(html);
 });
 
