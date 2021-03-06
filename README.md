@@ -1,8 +1,23 @@
 ## Webpack Bridge
 
+Make a bridge between client side and server side.
+
+```
+.
+-- node_modules
+-- client
+---- index.js
+---- index.html
+--   package.json
+-- server
+---- index.js
+--   package.json
+```
+
 Full Example:
 
 ```js
+// server/index.js
 const webpackDevmiddleware = require('webpack-dev-middleware');
 const { webpackDevBridge } = require('webpack-dev-bridge');
 const webpackConfig = require('./webpack.config');
