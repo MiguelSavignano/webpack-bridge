@@ -8,6 +8,11 @@ export interface IDevMiddleware {
 export class WebpackBridge {
   constructor(public devMiddleware: IDevMiddleware) {}
 
+  // json with all compiled files and uniq names
+  get assetsByChunkName() {
+    return this.devMiddleware.stats.toJson().assetsByChunkName;
+  }
+
   get jsonWebpackStats() {
     return this.devMiddleware.stats.toJson();
   }

@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
     "target": "ES2018",
-    "lib": [
-      "es6"
-    ],
-    "alwaysStrict": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": false,
+        "alwaysStrict": true,
     "strictNullChecks": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "outDir": "lib",
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]
