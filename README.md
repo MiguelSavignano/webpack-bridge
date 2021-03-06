@@ -1,17 +1,16 @@
 ## Webpack Bridge
 
-Make a bridge between client side and server side.
+Make a bridge between client side and server side allowing use server variables in the generated html by webpack.
 
 ```
-.
--- node_modules
 -- client
 ---- index.js
----- index.html
---   package.json
+---- public/index.html
+---- webpack.config.js
+---- package.json
 -- server
 ---- index.js
---   package.json
+---- package.json
 ```
 
 Full Example:
