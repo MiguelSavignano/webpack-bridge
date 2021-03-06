@@ -18,14 +18,23 @@ Full Example:
 ```js
 // server/index.js
 const webpackDevmiddleware = require('webpack-dev-middleware');
-const { webpackDevBridge } = require('webpack-dev-bridge');
+const { webpackBridge } = require('webpack-bridge');
 const webpackConfig = require('./webpack.config');
 
-// Required for handler HTML in the server side
-app.use(
-  webpackDevmiddleware(webpackConfig, { index: false, serverSideRender: true }),
-);
-app.use(webpackDevBridge());
+// Load only for developments environments
+if (!process.env.NODE_ENV === 'production') {
+  const webpack = require('webpack');
+  const webpackDevmiddleware = require('webpack-dev-middleware');
+
+  app.use(
+    webpackDevmiddleware(webpack(webpackConfig), {
+      index: false,
+      serverSideRender: true,
+    }),
+  );
+}
+
+app.use(webpackBridge({ webpackOutputFolder: './dist' }));
 
 app.get('/', (req, res) => {
   const { webpackBridge } = res;

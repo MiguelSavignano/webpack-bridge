@@ -1,6 +1,6 @@
 const ejs = require('ejs');
 const fs = require('fs');
-const { webpackDevBridge } = require('../../lib/webpackDevBridge');
+const { webpackBridge } = require('../../lib/webpackDevBridge');
 const webpackConfig = require('../client/webpack.config');
 
 const express = require('express');
@@ -22,7 +22,7 @@ if (!process.env.NODE_ENV === 'production') {
 }
 
 // app.use(express.static('./dist'))
-app.use(webpackDevBridge({ webpackOutputFolder: './dist' }));
+app.use(webpackBridge({ webpackOutputFolder: './dist' }));
 
 app.get('/config', (req, res) => {
   const { webpackBridge } = res;
