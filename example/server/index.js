@@ -57,6 +57,24 @@ app.get('/', (req, res) => {
   res.send(html);
 });
 
+
+app.get('/build', (req, res) => {
+  const { webpackBridge } = res;
+  const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
+  const data = {
+    lang: res.getHeaders().lang,
+    environment: process.env.NODE_ENV,
+    // serialized variables with serialize-javascript
+    SERVER_GLOBALS: webpackBridge.setGlobals({
+      __CURRENT_USER__: { name: 'name' },
+      environment: process.env.NODE_ENV,
+    }),
+  };
+  // Compatible with html template
+  const html = ejs.render(htmlTemplate, data, webpackBridge.ejsSyntaxOptions);
+  res.send(html);
+});
+
 app.get('/server', (req, res) => {
   const { webpackBridge } = res;
   const htmlTemplate = fs.readFileSync(__dirname + '/serverTemplate.html', 'utf8'); // html bundled with webpack html plugin
