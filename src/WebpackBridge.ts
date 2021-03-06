@@ -1,7 +1,12 @@
 import * as serialize from 'serialize-javascript';
 
+export interface IDevMiddleware {
+  stats: { toJson: () => any };
+  outputFileSystem: { readFileSync: (arg0: string, arg1: string) => any };
+}
+
 export class WebpackBridge {
-  constructor(public devMiddleware) {}
+  constructor(public devMiddleware: IDevMiddleware) {}
 
   get jsonWebpackStats() {
     return this.devMiddleware.stats.toJson();
