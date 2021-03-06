@@ -66,3 +66,6 @@ app.get('/', (req, res) => {
   </body>
 </html>
 ```
+
+1 render variables in webpack build (HTML plugin)
+2 render server variables (Webpack bridge).

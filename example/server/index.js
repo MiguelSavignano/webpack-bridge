@@ -1,3 +1,4 @@
+const ejs = require('ejs');
 const webpack = require('webpack');
 const webpackDevmiddleware = require('webpack-dev-middleware');
 const { webpackDevBridge } = require('../../lib/webpackDevBridge');
@@ -43,17 +44,20 @@ app.get('/', (req, res) => {
   const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
   const data = {
     lang: res.getHeaders().lang,
+    environment: process.env.NODE_ENV,
     // serialized variables with serialize-javascript
     SERVER_GLOBALS: webpackBridge.setGlobals({
       __CURRENT_USER__: { name: 'name' },
-      __REDUX_INITIAL_STATE__: { environment: process.env.NODE_ENV },
+      environment: process.env.NODE_ENV,
     }),
   };
-  // Compatible with react-create-app html template
-  // const options = ctx.webpackBridge.ejsSyntaxOptions('cutom'); // {%= variable %}
-  // const html = ejs.render(htmlTemplate, data, options);
-
-  res.send(htmlTemplate);
+  // Compatible with html template
+  const html = ejs.render(htmlTemplate, data,  {
+    delimiter: '%',
+    openDelimiter: '{',
+    closeDelimiter: '}',
+  },);
+  res.send(html);
 });
 
 app.listen(process.env.PORT || 3000);
