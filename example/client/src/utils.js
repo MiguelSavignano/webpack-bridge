@@ -1,4 +1,3 @@
 export function helloWorld(){
-  alert(`Hello World! SERVER ENV: ${window.environment}`)
-
+  console.log(`Hello World! SERVER ENV: ${window.environment}`)
 }
