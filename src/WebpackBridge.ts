@@ -1,8 +1,17 @@
 import * as serialize from 'serialize-javascript';
-
+const isObject = require('is-object');
 export interface IDevMiddleware {
   stats: { toJson: () => any };
   outputFileSystem: { readFileSync: (arg0: string, arg1: string) => any };
+}
+
+// This function makes server rendering of asset references consistent with different webpack chunk/entry configurations
+function normalizeAssets(assets: any) {
+  if (isObject(assets)) {
+    return Object.values(assets);
+  }
+
+  return Array.isArray(assets) ? assets : [assets];
 }
 
 export class WebpackBridge {
@@ -27,6 +36,35 @@ export class WebpackBridge {
       openDelimiter: '{',
       closeDelimiter: '}',
     };
+  }
+
+  fetchAllTags({
+    entry = 'main',
+    endsWith,
+    template,
+  }: {
+    entry: string;
+    endsWith: string;
+    template: (path: string) => string;
+  }) {
+    return normalizeAssets(this.assetsByChunkName[entry])
+      .filter((path) => path.endsWith(endsWith))
+      .map(template)
+      .join('\n');
+  }
+
+  allJsTags(
+    entry = 'main',
+    template = (path: string) => `<script src="${path}"></script>`,
+  ) {
+    return this.fetchAllTags({ entry, endsWith: '.js', template });
+  }
+
+  allCssTags(
+    entry = 'main',
+    template = (path: string) => `<link rel="stylesheet" href="${path}">`,
+  ) {
+    return this.fetchAllTags({ entry, endsWith: '.css', template });
   }
 
   html(name = 'index.html') {

@@ -1,4 +1,5 @@
 const ejs = require('ejs');
+const fs = require('fs');
 const webpack = require('webpack');
 const webpackDevmiddleware = require('webpack-dev-middleware');
 const { webpackDevBridge } = require('../../lib/webpackDevBridge');
@@ -58,8 +59,9 @@ app.get('/', (req, res) => {
 
 app.get('/server', (req, res) => {
   const { webpackBridge } = res;
-  const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
+  const htmlTemplate = fs.readFileSync(__dirname + '/serverTemplate.html', 'utf8'); // html bundled with webpack html plugin
   const data = {
+    allJsTags: webpackBridge.allJsTags('main'),
     lang: res.getHeaders().lang,
     environment: process.env.NODE_ENV,
     // serialized variables with serialize-javascript
@@ -68,7 +70,7 @@ app.get('/server', (req, res) => {
       environment: process.env.NODE_ENV,
     }),
   };
-  const html = ejs.render(htmlTemplate, data, webpackBridge.ejsSyntaxOptions);
+  const html = ejs.render(htmlTemplate, data);
   res.send(html);
 });
 

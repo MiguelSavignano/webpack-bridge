@@ -38,6 +38,7 @@
   "dependencies": {
     "@types/webpack-dev-middleware": "^4.1.0",
     "ejs": "^3.1.6",
+    "is-object": "^1.0.2",
     "lodash": "^4.17.21",
     "serialize-javascript": "^5.0.1"
   }
