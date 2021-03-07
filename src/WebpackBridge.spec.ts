@@ -18,7 +18,10 @@ describe('WebpackBridge', () => {
     const options = {
       webpackOutputFolder: 'webpackOutputFolder',
     };
-    const webpackBridge = new WebpackBridge(options, mockWebpackDevMiddleware);
+    const webpackBridge = new WebpackBridge({
+      options,
+      devMiddleware: mockWebpackDevMiddleware,
+    });
 
     test('html', () => {
       expect(webpackBridge.html()).toBe('htmlTemplate');
