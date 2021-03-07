@@ -29,6 +29,7 @@ class NotFoundDevMiddlewareError extends Error {}
 export class WebpackBridge {
   webpackOutputFolder: string;
   devMiddleware: IDevMiddleware | null;
+  mode: string;
 
   constructor({
     options,
@@ -39,6 +40,7 @@ export class WebpackBridge {
   }) {
     this.webpackOutputFolder = options && options.webpackOutputFolder;
     this.devMiddleware = devMiddleware;
+    this.mode = devMiddleware ? 'middleware' : 'static';
   }
 
   // json with all compiled files and uniq names

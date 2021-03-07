@@ -22,7 +22,7 @@ const { webpackBridge } = require('webpack-bridge');
 const webpackConfig = require('./webpack.config');
 
 // Load only for developments environments
-if (!process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV !== 'production'))+ { {
   const webpack = require('webpack');
   const webpackDevmiddleware = require('webpack-dev-middleware');
 

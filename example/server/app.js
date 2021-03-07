@@ -7,10 +7,11 @@ const webpackConfig = require('../client/webpack.config');
 
 const app = express();
 
-console.log('*****', process.env.NODE_ENV)
+console.log('*****', process.env.NODE_ENV, process.env.NODE_ENV === 'production')
 // Required for handler HTML in the server side
 
-if (!process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV !== 'production') {
+  console.log("Apply webpack dev middleware")
   const webpack = require('webpack');
   const webpackDevmiddleware = require('webpack-dev-middleware');
 
@@ -42,7 +43,6 @@ app.get('/html', (req, res) => {
 })
 
 app.get('/', (req, res) => {
-  console.log('HELLO')
   const webpackBridge = new WebpackBridge(res.webpackBridge)
   const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
   const data = {
