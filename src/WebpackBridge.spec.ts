@@ -1,4 +1,4 @@
-import { WebpackBridge, IDevMiddleware } from './WebpackBridge';
+import { WebpackBridge } from './WebpackBridge';
 
 describe('WebpackBridge', () => {
   describe('development mode', () => {

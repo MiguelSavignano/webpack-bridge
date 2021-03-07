@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
   const { webpackBridge } = res;
   const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
   const data = {
-    lang: res.headers.lang,
+    lang: res.getHeaders().lang,
     // serialized variables with serialize-javascript
     SERVER_GLOBALS: webpackBridge.setGlobals({
       __CURRENT_USER__: res.user,
@@ -49,7 +49,7 @@ app.get('/', (req, res) => {
   };
 
   // Compatible with react-create-app html template
-  const options = ctx.webpackBridge.ejsSyntaxOptions('cutom'); // {%= variable %}
+  const options = ctx.webpackBridge.ejsSyntaxOptions(); // {%= variable %}
   const html = ejs.render(htmlTemplate, data, options);
 
   res.send(html);
