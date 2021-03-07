@@ -1,15 +1,16 @@
 import { IWebpackBridgeOptions, WebpackBridge } from './WebpackBridge';
 const express = require('express');
 
+export interface IWebpackBridgeMiddlewareOptions {
+  webpackOutputFolder: string;
+  handlePaths?: string[];
+}
+
 /**
  * Set res.webpackBridge helper
  */
-export function webpackBridge({
-  webpackOutputFolder,
-  handlePaths = ['/'],
-}: IWebpackBridgeOptions) {
+export function webpackBridge(options: IWebpackBridgeOptions) {
   return async function (req: any, res: any, next: any) {
-    const options = { webpackOutputFolder, handlePaths };
     if (res.locals && res.locals.webpack && res.locals.webpack.devMiddleware) {
       webpackDevBridge(options)(req, res, next);
     } else {
@@ -18,22 +19,34 @@ export function webpackBridge({
   };
 }
 
-export function webpackDevBridge(options: IWebpackBridgeOptions) {
+export function webpackDevBridge({
+  webpackOutputFolder,
+  handlePaths = ['/'],
+}: IWebpackBridgeOptions) {
   return async function (req: any, res: any, next: any) {
     const { devMiddleware } = res.locals.webpack;
-    res.webpackBridge = new WebpackBridge(options, devMiddleware);
+    res.webpackBridge = new WebpackBridge(
+      { webpackOutputFolder, handlePaths },
+      devMiddleware,
+    );
     await next();
   };
 }
 
-export function webpackStaticBridge(options: IWebpackBridgeOptions) {
+export function webpackStaticBridge({
+  webpackOutputFolder,
+  handlePaths = ['/'],
+}: IWebpackBridgeOptions) {
   return async function (req: any, res: any, next: any) {
-    res.webpackBridge = new WebpackBridge(options, null);
+    res.webpackBridge = new WebpackBridge(
+      { webpackOutputFolder, handlePaths },
+      null,
+    );
     // Prevent render index.html with static middleware
-    if (options.handlePaths.includes(req.path)) {
+    if (handlePaths.includes(req.path)) {
       await next();
     } else {
-      express.static(options.webpackOutputFolder)(req, res, next);
+      express.static(webpackOutputFolder)(req, res, next);
     }
   };
 }

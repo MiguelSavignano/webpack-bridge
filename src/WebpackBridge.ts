@@ -4,8 +4,13 @@ const isObject = require('is-object');
 
 export interface IWebpackBridgeOptions {
   webpackOutputFolder: string;
-  handlePaths: string[];
+  handlePaths?: string[];
 }
+
+export interface IWebpackBridgeOptions {
+  webpackOutputFolder: string;
+}
+
 export interface IDevMiddleware {
   stats: { toJson: () => any };
   outputFileSystem: { readFileSync: (arg0: string, arg1: string) => any };
