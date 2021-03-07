@@ -26,15 +26,19 @@ function normalizeAssets(assets: any) {
 
 class NotFoundDevMiddlewareError extends Error {}
 
-class WebpackBridge {}
-
 export class WebpackBridge {
   webpackOutputFolder: string;
-  constructor(
-    options: IWebpackBridgeOptions,
-    public devMiddleware?: IDevMiddleware | null,
-  ) {
+  devMiddleware: IDevMiddleware | null;
+
+  constructor({
+    options,
+    devMiddleware,
+  }: {
+    options: IWebpackBridgeOptions;
+    devMiddleware: IDevMiddleware | null;
+  }) {
     this.webpackOutputFolder = options && options.webpackOutputFolder;
+    this.devMiddleware = devMiddleware;
   }
 
   // json with all compiled files and uniq names
