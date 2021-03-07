@@ -2,16 +2,20 @@ const ejs = require('ejs');
 const fs = require('fs');
 const express = require('express');
 const { webpackBridge } = require('../../lib/webpackDevBridge');
-const { WebpackBridge } = require('../../lib/WebpackBridge')
+const { WebpackBridge } = require('../../lib/WebpackBridge');
 const webpackConfig = require('../client/webpack.config');
 
 const app = express();
 
-console.log('*****', process.env.NODE_ENV, process.env.NODE_ENV === 'production')
+console.log(
+  '*****',
+  process.env.NODE_ENV,
+  process.env.NODE_ENV === 'production',
+);
 // Required for handler HTML in the server side
 
 if (process.env.NODE_ENV !== 'production') {
-  console.log("Apply webpack dev middleware")
+  console.log('Apply webpack dev middleware');
   const webpack = require('webpack');
   const webpackDevmiddleware = require('webpack-dev-middleware');
 
@@ -23,10 +27,12 @@ if (process.env.NODE_ENV !== 'production') {
   );
 }
 
-app.use(webpackBridge({ webpackOutputFolder: './dist' }, () => {
-  // In production environment render the static assets if is necessary
-  app.use(express.static('./dist'));
-}));
+app.use(
+  webpackBridge({ webpackOutputFolder: './dist' }, () => {
+    // In production environment render the static assets if is necessary
+    app.use(express.static('./dist'));
+  }),
+);
 
 app.get('/html', (req, res) => {
   const { webpackBridge } = res;
@@ -40,10 +46,10 @@ app.get('/html', (req, res) => {
     }),
   };
   res.json({ data, htmlTemplate });
-})
+});
 
 app.get('/', (req, res) => {
-  const webpackBridge = new WebpackBridge(res.webpackBridge)
+  const webpackBridge = new WebpackBridge(res.webpackBridge);
   const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
   const data = {
     lang: res.getHeaders().lang,
@@ -62,7 +68,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/build', (req, res) => {
-  const { webpackBridge } = res;
+  const webpackBridge = new WebpackBridge(res.webpackBridge);
   const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
   const data = {
     lang: res.getHeaders().lang,
@@ -79,8 +85,11 @@ app.get('/build', (req, res) => {
 });
 
 app.get('/server', (req, res) => {
-  const { webpackBridge } = res;
-  const htmlTemplate = fs.readFileSync(__dirname + '/serverTemplate.html', 'utf8'); // html bundled with webpack html plugin
+  const webpackBridge = new WebpackBridge(res.webpackBridge);
+  const htmlTemplate = fs.readFileSync(
+    __dirname + '/serverTemplate.html',
+    'utf8',
+  ); // html bundled with webpack html plugin
   const data = {
     allJsTags: webpackBridge.allJsTags('main'),
     lang: res.getHeaders().lang,
@@ -94,4 +103,4 @@ app.get('/server', (req, res) => {
   res.send(html);
 });
 
-module.exports = app
+module.exports = app;

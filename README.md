@@ -39,8 +39,7 @@ app.use(webpackBridge({ webpackOutputFolder: './dist' }), () => {
 });
 
 app.get('/', (req, res) => {
-  const { webpackBridge } = res;
-  const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
+  // Your server data
   const data = {
     lang: res.getHeaders().lang,
     // serialized variables with serialize-javascript
@@ -50,12 +49,15 @@ app.get('/', (req, res) => {
     }),
   };
 
-  // Compatible with webpack html template plugin template
-  const options = ctx.webpackBridge.ejsSyntaxOptions(); // {%= variable %}
-  const html = ejs.render(htmlTemplate, data, options);
-
+  const webpackBridge = new WebpackBridge(res.webpackBridge)
+  // Custom tags {%= variable %} for works with webpack html template plugin template
+  const html = webpackBridge.renderHtml(ejs)('index.html', data)
   res.send(html);
 });
+```
+
+```js
+const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
 ```
 
 ## Html example:

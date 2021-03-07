@@ -16,6 +16,10 @@ export interface IDevMiddleware {
   outputFileSystem: { readFileSync: (arg0: string, arg1: string) => any };
 }
 
+export interface IRenderModule {
+  render(string: string, data: any, options?: any): string;
+}
+
 function normalizeAssets(assets: any) {
   if (isObject(assets)) {
     return Object.values(assets);
@@ -102,6 +106,17 @@ export class WebpackBridge {
     } else {
       return fs.readFileSync(`${this.webpackOutputFolder}/${name}`, 'utf8');
     }
+  }
+
+  renderHtml(ejs: IRenderModule, options = {}) {
+    return function (name: string, data: any) {
+      const htmlTemplate = this.html(name);
+
+      return ejs.render(htmlTemplate, data, {
+        ...this.ejsSyntaxOptions,
+        options,
+      });
+    };
   }
 
   private htmlFromDevMiddleware(name: string) {
