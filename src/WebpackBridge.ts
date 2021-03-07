@@ -26,6 +26,8 @@ function normalizeAssets(assets: any) {
 
 class NotFoundDevMiddlewareError extends Error {}
 
+class WebpackBridge {}
+
 export class WebpackBridge {
   webpackOutputFolder: string;
   constructor(

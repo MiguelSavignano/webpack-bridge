@@ -2,6 +2,7 @@ const ejs = require('ejs');
 const fs = require('fs');
 const express = require('express');
 const { webpackBridge } = require('../../lib/webpackDevBridge');
+const { WebpackBridge } = require('../../lib/WebpackBridge')
 const webpackConfig = require('../client/webpack.config');
 
 const app = express();
@@ -42,7 +43,7 @@ app.get('/html', (req, res) => {
 
 app.get('/', (req, res) => {
   console.log('HELLO')
-  const { webpackBridge } = res;
+  const webpackBridge = new WebpackBridge(res.webpackBridge)
   const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
   const data = {
     lang: res.getHeaders().lang,
