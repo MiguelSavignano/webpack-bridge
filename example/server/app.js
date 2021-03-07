@@ -1,9 +1,9 @@
 const ejs = require('ejs');
 const fs = require('fs');
+const express = require('express');
 const { webpackBridge } = require('../../lib/webpackDevBridge');
 const webpackConfig = require('../client/webpack.config');
 
-const express = require('express');
 const app = express();
 
 console.log('*****', process.env.NODE_ENV)
@@ -21,8 +21,10 @@ if (!process.env.NODE_ENV === 'production') {
   );
 }
 
-// app.use(express.static('./dist'))
-app.use(webpackBridge({ webpackOutputFolder: './dist' }));
+app.use(webpackBridge({ webpackOutputFolder: './dist' }, () => {
+  // In production environment render the static assets if is necessary
+  app.use(express.static('./dist'));
+}));
 
 app.get('/html', (req, res) => {
   const { webpackBridge } = res;
@@ -39,6 +41,7 @@ app.get('/html', (req, res) => {
 })
 
 app.get('/', (req, res) => {
+  console.log('HELLO')
   const { webpackBridge } = res;
   const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
   const data = {

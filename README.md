@@ -34,7 +34,9 @@ if (!process.env.NODE_ENV === 'production') {
   );
 }
 
-app.use(webpackBridge({ webpackOutputFolder: './dist' }));
+app.use(webpackBridge({ webpackOutputFolder: './dist' }), () => {
+  app.use(express.static('./dist')); // in production environment render the static js, css if is necessary
+});
 
 app.get('/', (req, res) => {
   const { webpackBridge } = res;
@@ -48,7 +50,7 @@ app.get('/', (req, res) => {
     }),
   };
 
-  // Compatible with react-create-app html template
+  // Compatible with webpack html template plugin template
   const options = ctx.webpackBridge.ejsSyntaxOptions(); // {%= variable %}
   const html = ejs.render(htmlTemplate, data, options);
 

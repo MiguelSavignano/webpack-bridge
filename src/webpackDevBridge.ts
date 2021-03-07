@@ -22,7 +22,7 @@ export function webpackBridge(options: IWebpackBridgeOptions) {
 export function webpackDevBridge({
   webpackOutputFolder,
   handlePaths = ['/'],
-}: IWebpackBridgeOptions) {
+}: IWebpackBridgeMiddlewareOptions) {
   return async function (req: any, res: any, next: any) {
     const { devMiddleware } = res.locals.webpack;
     res.webpackBridge = new WebpackBridge(
@@ -33,10 +33,10 @@ export function webpackDevBridge({
   };
 }
 
-export function webpackStaticBridge({
-  webpackOutputFolder,
-  handlePaths = ['/'],
-}: IWebpackBridgeOptions) {
+export function webpackStaticBridge(
+  { webpackOutputFolder, handlePaths = ['/'] }: IWebpackBridgeMiddlewareOptions,
+  callback = () => {},
+) {
   return async function (req: any, res: any, next: any) {
     res.webpackBridge = new WebpackBridge(
       { webpackOutputFolder, handlePaths },
@@ -46,7 +46,7 @@ export function webpackStaticBridge({
     if (handlePaths.includes(req.path)) {
       await next();
     } else {
-      express.static(webpackOutputFolder)(req, res, next);
+      callback();
     }
   };
 }
