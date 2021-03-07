@@ -4,8 +4,8 @@
   "description": "",
   "main": "webpack.config.js",
   "scripts": {
-    "build": "webpack-cli -c client/webpack.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npx nodemon ./server/index.js",
+    "build": "webpack-cli -c client/webpack.config.js"
   },
   "author": "",
   "license": "ISC",

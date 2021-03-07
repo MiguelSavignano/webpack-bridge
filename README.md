@@ -22,7 +22,7 @@ const { webpackBridge } = require('webpack-bridge');
 const webpackConfig = require('./webpack.config');
 
 // Load only for developments environments
-if (!process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV !== 'production'))+ { {
   const webpack = require('webpack');
   const webpackDevmiddleware = require('webpack-dev-middleware');
 
@@ -34,13 +34,14 @@ if (!process.env.NODE_ENV === 'production') {
   );
 }
 
-app.use(webpackBridge({ webpackOutputFolder: './dist' }));
+app.use(webpackBridge({ webpackOutputFolder: './dist' }), () => {
+  app.use(express.static('./dist')); // in production environment render the static js, css if is necessary
+});
 
 app.get('/', (req, res) => {
-  const { webpackBridge } = res;
-  const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
+  // Your server data
   const data = {
-    lang: res.headers.lang,
+    lang: res.getHeaders().lang,
     // serialized variables with serialize-javascript
     SERVER_GLOBALS: webpackBridge.setGlobals({
       __CURRENT_USER__: res.user,
@@ -48,12 +49,15 @@ app.get('/', (req, res) => {
     }),
   };
 
-  // Compatible with react-create-app html template
-  const options = ctx.webpackBridge.ejsSyntaxOptions('cutom'); // {%= variable %}
-  const html = ejs.render(htmlTemplate, data, options);
-
+  const webpackBridge = new WebpackBridge(res.webpackBridge)
+  // Custom tags {%= variable %} for works with webpack html template plugin template
+  const html = webpackBridge.renderHtml(ejs)('index.html', data)
   res.send(html);
 });
+```
+
+```js
+const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
 ```
 
 ## Html example:

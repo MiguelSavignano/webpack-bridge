@@ -1,16 +1,25 @@
 import * as fs from 'fs';
 import * as serialize from 'serialize-javascript';
 const isObject = require('is-object');
+
 export interface IWebpackBridgeOptions {
   webpackOutputFolder: string;
-  handlePaths: string[];
+  handlePaths?: string[];
 }
+
+export interface IWebpackBridgeOptions {
+  webpackOutputFolder: string;
+}
+
 export interface IDevMiddleware {
   stats: { toJson: () => any };
   outputFileSystem: { readFileSync: (arg0: string, arg1: string) => any };
 }
 
-// This function makes server rendering of asset references consistent with different webpack chunk/entry configurations
+export interface IRenderModule {
+  render(string: string, data: any, options?: any): string;
+}
+
 function normalizeAssets(assets: any) {
   if (isObject(assets)) {
     return Object.values(assets);
@@ -23,31 +32,33 @@ class NotFoundDevMiddlewareError extends Error {}
 
 export class WebpackBridge {
   webpackOutputFolder: string;
-  constructor(
-    options: IWebpackBridgeOptions,
-    public devMiddleware?: IDevMiddleware | null,
-  ) {
-    this.webpackOutputFolder = options && options.webpackOutputFolder;
-  }
+  devMiddleware: IDevMiddleware | null;
+  mode: string;
 
-  checkDevMiddleware() {
-    if (this.devMiddleware) return false;
-    throw new NotFoundDevMiddlewareError();
+  constructor({
+    options,
+    devMiddleware,
+  }: {
+    options: IWebpackBridgeOptions;
+    devMiddleware: IDevMiddleware | null;
+  }) {
+    this.webpackOutputFolder = options && options.webpackOutputFolder;
+    this.devMiddleware = devMiddleware;
+    this.mode = devMiddleware ? 'middleware' : 'static';
   }
 
   // json with all compiled files and uniq names
-  // TODO implement read manifest file
-  get assetsByChunkName() {
+  private get assetsByChunkName() {
     if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
     return this.jsonWebpackStats.assetsByChunkName;
   }
 
-  get jsonWebpackStats() {
+  private get jsonWebpackStats() {
     if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
     return this.devMiddleware.stats.toJson();
   }
 
-  get outputPath() {
+  private get outputPath() {
     if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
     return this.jsonWebpackStats.outputPath;
   }
@@ -97,7 +108,18 @@ export class WebpackBridge {
     }
   }
 
-  htmlFromDevMiddleware(name: string) {
+  renderHtml(ejs: IRenderModule, options = {}) {
+    return function (name: string, data: any) {
+      const htmlTemplate = this.html(name);
+
+      return ejs.render(htmlTemplate, data, {
+        ...this.ejsSyntaxOptions,
+        options,
+      });
+    };
+  }
+
+  private htmlFromDevMiddleware(name: string) {
     if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
 
     if (!this.devMiddleware.outputFileSystem) {

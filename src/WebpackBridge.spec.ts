@@ -1,32 +1,35 @@
-import { WebpackBridge, IDevMiddleware } from "./WebpackBridge";
+import { WebpackBridge } from './WebpackBridge';
 
-describe("WebpackBridge", () => {
-  describe("development mode", () => {
-    const mockRes = {
+describe('WebpackBridge', () => {
+  describe('development mode', () => {
+    const mockWebpackDevMiddleware = {
       stats: {
         toJson() {
           return {
-            outputPath: "outputPath",
+            outputPath: 'outputPath',
           };
         },
       },
       outputFileSystem: {
-        readFileSync: (arg0: string, arg1: string) => "htmlTemplate",
+        readFileSync: (arg0: string, arg1: string) => 'htmlTemplate',
       },
     };
-    const webpackBridge = new WebpackBridge(mockRes);
 
-    test("outputPath", () => {
-      expect(webpackBridge.outputPath).toBe("outputPath");
+    const options = {
+      webpackOutputFolder: 'webpackOutputFolder',
+    };
+    const webpackBridge = new WebpackBridge({
+      options,
+      devMiddleware: mockWebpackDevMiddleware,
     });
 
-    test("html", () => {
-      expect(webpackBridge.html()).toBe("htmlTemplate");
+    test('html', () => {
+      expect(webpackBridge.html()).toBe('htmlTemplate');
     });
 
-    test("setGlobals", () => {
+    test('setGlobals', () => {
       expect(
-        webpackBridge.setGlobals({ __CURRENT_USER__: { name: "name" } })
+        webpackBridge.setGlobals({ __CURRENT_USER__: { name: 'name' } }),
       ).toBe(`window.__CURRENT_USER__ = JSON.parse('{\"name\":\"name\"}')`);
 
       expect(webpackBridge.setGlobals({ __A: 1, __B: 2 }))
