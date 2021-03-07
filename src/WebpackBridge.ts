@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as serialize from 'serialize-javascript';
 const isObject = require('is-object');
+
 export interface IWebpackBridgeOptions {
   webpackOutputFolder: string;
   handlePaths: string[];
@@ -10,7 +11,6 @@ export interface IDevMiddleware {
   outputFileSystem: { readFileSync: (arg0: string, arg1: string) => any };
 }
 
-// This function makes server rendering of asset references consistent with different webpack chunk/entry configurations
 function normalizeAssets(assets: any) {
   if (isObject(assets)) {
     return Object.values(assets);
@@ -30,24 +30,18 @@ export class WebpackBridge {
     this.webpackOutputFolder = options && options.webpackOutputFolder;
   }
 
-  checkDevMiddleware() {
-    if (this.devMiddleware) return false;
-    throw new NotFoundDevMiddlewareError();
-  }
-
   // json with all compiled files and uniq names
-  // TODO implement read manifest file
-  get assetsByChunkName() {
+  private get assetsByChunkName() {
     if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
     return this.jsonWebpackStats.assetsByChunkName;
   }
 
-  get jsonWebpackStats() {
+  private get jsonWebpackStats() {
     if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
     return this.devMiddleware.stats.toJson();
   }
 
-  get outputPath() {
+  private get outputPath() {
     if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
     return this.jsonWebpackStats.outputPath;
   }
@@ -97,7 +91,7 @@ export class WebpackBridge {
     }
   }
 
-  htmlFromDevMiddleware(name: string) {
+  private htmlFromDevMiddleware(name: string) {
     if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
 
     if (!this.devMiddleware.outputFileSystem) {
