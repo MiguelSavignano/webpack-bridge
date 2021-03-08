@@ -18,13 +18,13 @@ Full Example:
 ```js
 // server/index.js
 const webpackDevmiddleware = require('webpack-dev-middleware');
-const { webpackBridge } = require('webpack-bridge');
-const webpackConfig = require('./webpack.config');
+const { WebpackBridge, webpackBridgeMiddleware } = require('webpack-bridge');
 
 // Load only for developments environments
 if (process.env.NODE_ENV !== 'production') {
   const webpack = require('webpack');
   const webpackDevmiddleware = require('webpack-dev-middleware');
+  const webpackConfig = require('./webpack.config');
 
   app.use(
     webpackDevmiddleware(webpack(webpackConfig), {
@@ -39,6 +39,8 @@ app.use(webpackBridge({ webpackOutputFolder: './dist' }), () => {
 });
 
 app.get('/', (req, res) => {
+  const webpackBridge = new WebpackBridge(res.webpackBridge);
+
   // Your server data
   const data = {
     lang: res.getHeaders().lang,
@@ -50,7 +52,6 @@ app.get('/', (req, res) => {
   };
 
   // Custom tags {%= variable %} for works with webpack html templaes
-  const webpackBridge = new WebpackBridge(res.webpackBridge);
   const html = webpackBridge.renderHtml(ejs)('index.html', data);
   res.send(html);
 });
@@ -84,5 +85,5 @@ const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webp
 
 TODO List
 
-- [] Add Css example
-- [] Refactor WebpackBridgeDev and WebpackBridgeStatic
+- [ ] Add Css example
+- [ ] Build script helper
