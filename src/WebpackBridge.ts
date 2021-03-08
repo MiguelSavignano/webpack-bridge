@@ -48,6 +48,7 @@ export class WebpackBridge {
   }
 
   // json with all compiled files and uniq names
+  // TODO read from mainText file
   private get assetsByChunkName() {
     if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
     return this.jsonWebpackStats.assetsByChunkName;
