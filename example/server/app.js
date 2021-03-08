@@ -6,11 +6,7 @@ const webpackConfig = require('../client/webpack.config');
 
 const app = express();
 
-console.log(
-  '*****',
-  process.env.NODE_ENV,
-  process.env.NODE_ENV === 'production',
-);
+console.log('*****', process.env.NODE_ENV);
 // Required for handler HTML in the server side
 
 if (process.env.NODE_ENV !== 'production') {
@@ -34,7 +30,7 @@ app.use(
 );
 
 app.get('/', (req, res) => {
-  const webpackBridge = new WebpackBridge(res.webpackBridge);
+  const webpackBridge = new WebpackBridge();
   const data = {
     lang: res.getHeaders().lang,
     environment: process.env.NODE_ENV,
@@ -66,7 +62,7 @@ app.get('/html', (req, res) => {
 });
 
 app.get('/build', (req, res) => {
-  const webpackBridge = new WebpackBridge(res.webpackBridge);
+  const webpackBridge = new WebpackBridge();
   const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
   const data = {
     lang: res.getHeaders().lang,
@@ -83,7 +79,7 @@ app.get('/build', (req, res) => {
 });
 
 app.get('/server', (req, res) => {
-  const webpackBridge = new WebpackBridge(res.webpackBridge);
+  const webpackBridge = new WebpackBridge();
   const htmlTemplate = fs.readFileSync(
     __dirname + '/serverTemplate.html',
     'utf8',
