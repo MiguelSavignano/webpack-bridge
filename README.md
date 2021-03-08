@@ -2,6 +2,8 @@
 
 Make a bridge between client side and server side allowing use server variables in the generated html by webpack.
 
+In development environment webpack bridge read the html from `webpack-dev-middleware` for production read the html from the file sytem,
+
 ```
 -- client
 ---- index.js
