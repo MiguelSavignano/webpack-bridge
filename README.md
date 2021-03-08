@@ -34,9 +34,12 @@ if (process.env.NODE_ENV !== 'production') {
   );
 }
 
-app.use(webpackBridge({ webpackOutputFolder: './dist' }), () => {
-  app.use(express.static('./dist')); // In production environment render the static js, css if is necessary
-});
+app.use(
+  webpackBridge({ webpackOutputFolder: './dist' }, () => {
+    // In production environment render the static assets if is necessary
+    app.use(express.static('./dist'));
+  }),
+);
 
 app.get('/', (req, res) => {
   const webpackBridge = new WebpackBridge(res.webpackBridge);

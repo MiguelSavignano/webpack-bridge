@@ -33,7 +33,7 @@ export class WebpackBridge {
   mode: string;
 
   constructor() {
-    this.webpackOutputFolder = config.options;
+    this.webpackOutputFolder = config.options.webpackOutputFolder;
     this.devMiddleware = config.devMiddleware;
     this.mode = config.devMiddleware ? 'middleware' : 'static';
   }
@@ -101,7 +101,7 @@ export class WebpackBridge {
   }
 
   renderHtml(ejs: IRenderModule, options = {}) {
-    return (name: string, data: any) => {
+    return (name: string, data: any = {}) => {
       const htmlTemplate = this.html(name);
 
       return ejs.render(htmlTemplate, data, {
