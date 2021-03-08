@@ -2,9 +2,6 @@ export interface IWebpackBridgeOptions {
     webpackOutputFolder: string;
     handlePaths?: string[];
 }
-export interface IWebpackBridgeOptions {
-    webpackOutputFolder: string;
-}
 export interface IDevMiddleware {
     stats: {
         toJson: () => any;
@@ -20,10 +17,7 @@ export declare class WebpackBridge {
     webpackOutputFolder: string;
     devMiddleware: IDevMiddleware | null;
     mode: string;
-    constructor({ options, devMiddleware, }: {
-        options: IWebpackBridgeOptions;
-        devMiddleware: IDevMiddleware | null;
-    });
+    constructor();
     private get assetsByChunkName();
     private get jsonWebpackStats();
     private get outputPath();
