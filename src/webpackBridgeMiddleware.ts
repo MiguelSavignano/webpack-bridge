@@ -1,5 +1,5 @@
 import { IWebpackBridgeOptions, WebpackBridge } from './WebpackBridge';
-const express = require('express');
+import { config } from './configStore';
 
 export interface IWebpackBridgeMiddlewareOptions {
   webpackOutputFolder: string;
@@ -18,11 +18,10 @@ export function webpackBridge(
   callback = () => {},
 ) {
   return async function (req: any, res: any, next: any) {
-    res.webpackBridge = { options: { webpackOutputFolder, handlePaths } };
-
+    config.options = { webpackOutputFolder, handlePaths };
     if (availableWebpackDevMiddleware(res)) {
       const { devMiddleware } = res.locals.webpack;
-      res.webpackBridge.devMiddleware = devMiddleware;
+      config.devMiddleware = devMiddleware;
       await next();
     } else {
       if (handlePaths.includes(req.path)) {

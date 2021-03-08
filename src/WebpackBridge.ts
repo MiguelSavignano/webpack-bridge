@@ -1,14 +1,11 @@
 import * as fs from 'fs';
 import * as serialize from 'serialize-javascript';
 import * as isObject from 'is-object';
+import { config } from './configStore';
 
 export interface IWebpackBridgeOptions {
   webpackOutputFolder: string;
   handlePaths?: string[];
-}
-
-export interface IWebpackBridgeOptions {
-  webpackOutputFolder: string;
 }
 
 export interface IDevMiddleware {
@@ -35,16 +32,10 @@ export class WebpackBridge {
   devMiddleware: IDevMiddleware | null;
   mode: string;
 
-  constructor({
-    options,
-    devMiddleware,
-  }: {
-    options: IWebpackBridgeOptions;
-    devMiddleware: IDevMiddleware | null;
-  }) {
-    this.webpackOutputFolder = options && options.webpackOutputFolder;
-    this.devMiddleware = devMiddleware;
-    this.mode = devMiddleware ? 'middleware' : 'static';
+  constructor() {
+    this.webpackOutputFolder = config.options;
+    this.devMiddleware = config.devMiddleware;
+    this.mode = config.devMiddleware ? 'middleware' : 'static';
   }
 
   // json with all compiled files and uniq names
