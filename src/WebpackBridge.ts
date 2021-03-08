@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as serialize from 'serialize-javascript';
-const isObject = require('is-object');
+import * as isObject from 'is-object';
 
 export interface IWebpackBridgeOptions {
   webpackOutputFolder: string;

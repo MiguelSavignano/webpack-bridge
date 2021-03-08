@@ -1,4 +1,4 @@
-## Webpack Bridge
+## Webpack bridge
 
 Make a bridge between client side and server side allowing use server variables in the generated html by webpack.
 
@@ -22,7 +22,7 @@ const { webpackBridge } = require('webpack-bridge');
 const webpackConfig = require('./webpack.config');
 
 // Load only for developments environments
-if (process.env.NODE_ENV !== 'production'))+ { {
+if (process.env.NODE_ENV !== 'production') {
   const webpack = require('webpack');
   const webpackDevmiddleware = require('webpack-dev-middleware');
 
@@ -35,7 +35,7 @@ if (process.env.NODE_ENV !== 'production'))+ { {
 }
 
 app.use(webpackBridge({ webpackOutputFolder: './dist' }), () => {
-  app.use(express.static('./dist')); // in production environment render the static js, css if is necessary
+  app.use(express.static('./dist')); // In production environment render the static js, css if is necessary
 });
 
 app.get('/', (req, res) => {
@@ -50,8 +50,8 @@ app.get('/', (req, res) => {
   };
 
   // Custom tags {%= variable %} for works with webpack html templaes
-  const webpackBridge = new WebpackBridge(res.webpackBridge)
-  const html = webpackBridge.renderHtml(ejs)('index.html', data)
+  const webpackBridge = new WebpackBridge(res.webpackBridge);
+  const html = webpackBridge.renderHtml(ejs)('index.html', data);
   res.send(html);
 });
 ```
