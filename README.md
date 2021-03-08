@@ -49,8 +49,8 @@ app.get('/', (req, res) => {
     }),
   };
 
+  // Custom tags {%= variable %} for works with webpack html templaes
   const webpackBridge = new WebpackBridge(res.webpackBridge)
-  // Custom tags {%= variable %} for works with webpack html template plugin template
   const html = webpackBridge.renderHtml(ejs)('index.html', data)
   res.send(html);
 });

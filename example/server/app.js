@@ -50,7 +50,6 @@ app.get('/html', (req, res) => {
 
 app.get('/', (req, res) => {
   const webpackBridge = new WebpackBridge(res.webpackBridge);
-  const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
   const data = {
     lang: res.getHeaders().lang,
     environment: process.env.NODE_ENV,
@@ -61,7 +60,7 @@ app.get('/', (req, res) => {
     }),
   };
   // Compatible with html template
-  const html = ejs.render(htmlTemplate, data, webpackBridge.ejsSyntaxOptions);
+  const html = webpackBridge.renderHtml(ejs)('index.html', data)
   // res.json({html});
 
   res.send(html);
