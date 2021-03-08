@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as serialize from 'serialize-javascript';
-import * as isObject from 'is-object';
 import { config } from './configStore';
 
 export interface IWebpackBridgeOptions {
@@ -17,15 +16,7 @@ export interface IRenderModule {
   render(string: string, data: any, options?: any): string;
 }
 
-function normalizeAssets(assets: any) {
-  if (isObject(assets)) {
-    return Object.values(assets);
-  }
-
-  return Array.isArray(assets) ? assets : [assets];
-}
-
-class NotFoundDevMiddlewareError extends Error {}
+export class NotFoundDevMiddlewareError extends Error {}
 
 export class WebpackBridge {
   webpackOutputFolder: string;
@@ -33,16 +24,9 @@ export class WebpackBridge {
   mode: string;
 
   constructor() {
-    this.webpackOutputFolder = config.options;
+    this.webpackOutputFolder = config.options.webpackOutputFolder;
     this.devMiddleware = config.devMiddleware;
     this.mode = config.devMiddleware ? 'middleware' : 'static';
-  }
-
-  // json with all compiled files and uniq names
-  // TODO read from mainText file
-  private get assetsByChunkName() {
-    if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
-    return this.jsonWebpackStats.assetsByChunkName;
   }
 
   private get jsonWebpackStats() {
@@ -63,35 +47,6 @@ export class WebpackBridge {
     };
   }
 
-  fetchAllTags({
-    entry = 'main',
-    endsWith,
-    template,
-  }: {
-    entry: string;
-    endsWith: string;
-    template: (path: string) => string;
-  }) {
-    return normalizeAssets(this.assetsByChunkName[entry])
-      .filter((path) => path.endsWith(endsWith))
-      .map(template)
-      .join('\n');
-  }
-
-  allJsTags(
-    entry = 'main',
-    template = (path: string) => `<script src="${path}"></script>`,
-  ) {
-    return this.fetchAllTags({ entry, endsWith: '.js', template });
-  }
-
-  allCssTags(
-    entry = 'main',
-    template = (path: string) => `<link rel="stylesheet" href="${path}">`,
-  ) {
-    return this.fetchAllTags({ entry, endsWith: '.css', template });
-  }
-
   html(name = 'index.html') {
     if (this.devMiddleware) {
       return this.htmlFromDevMiddleware(name);
@@ -101,7 +56,7 @@ export class WebpackBridge {
   }
 
   renderHtml(ejs: IRenderModule, options = {}) {
-    return (name: string, data: any) => {
+    return (name: string, data: any = {}) => {
       const htmlTemplate = this.html(name);
 
       return ejs.render(htmlTemplate, data, {
