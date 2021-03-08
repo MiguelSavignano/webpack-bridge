@@ -110,7 +110,7 @@ export class WebpackBridge {
   }
 
   renderHtml(ejs: IRenderModule, options = {}) {
-    return function (name: string, data: any) {
+    return (name: string, data: any) => {
       const htmlTemplate = this.html(name);
 
       return ejs.render(htmlTemplate, data, {

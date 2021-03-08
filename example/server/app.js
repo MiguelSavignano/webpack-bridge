@@ -1,8 +1,7 @@
 const ejs = require('ejs');
 const fs = require('fs');
 const express = require('express');
-const { webpackBridge } = require('../../lib/webpackDevBridge');
-const { WebpackBridge } = require('../../lib/WebpackBridge');
+const { webpackBridge, WebpackBridge } = require('../../lib');
 const webpackConfig = require('../client/webpack.config');
 
 const app = express();
@@ -34,20 +33,6 @@ app.use(
   }),
 );
 
-app.get('/html', (req, res) => {
-  const { webpackBridge } = res;
-  const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
-  const data = {
-    lang: res.getHeaders().lang,
-    // serialized variables with serialize-javascript
-    SERVER_GLOBALS: webpackBridge.setGlobals({
-      __CURRENT_USER__: { name: 'name' },
-      environment: { environment: process.env.NODE_ENV },
-    }),
-  };
-  res.json({ data, htmlTemplate });
-});
-
 app.get('/', (req, res) => {
   const webpackBridge = new WebpackBridge(res.webpackBridge);
   const data = {
@@ -64,6 +49,20 @@ app.get('/', (req, res) => {
   // res.json({html});
 
   res.send(html);
+});
+
+app.get('/html', (req, res) => {
+  const { webpackBridge } = res;
+  const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webpack html plugin
+  const data = {
+    lang: res.getHeaders().lang,
+    // serialized variables with serialize-javascript
+    SERVER_GLOBALS: webpackBridge.setGlobals({
+      __CURRENT_USER__: { name: 'name' },
+      environment: { environment: process.env.NODE_ENV },
+    }),
+  };
+  res.json({ data, htmlTemplate });
 });
 
 app.get('/build', (req, res) => {
