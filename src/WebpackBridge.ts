@@ -32,7 +32,7 @@ export class WebpackBridge {
     this.webpackOutputFolder = webpackOutputFolder;
   }
 
-  public handle(routePath: string) {
+  public handler(routePath: string) {
     this.handlePaths.push(routePath);
     return routePath;
   }
