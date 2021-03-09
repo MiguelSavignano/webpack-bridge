@@ -16,10 +16,19 @@ export interface IRenderModule {
 export declare class NotFoundDevMiddlewareError extends Error {
 }
 export declare class WebpackBridge {
+    handlePaths: string[];
     webpackOutputFolder: string;
-    devMiddleware: IDevMiddleware | null;
+    webpackDevMiddleware: IDevMiddleware | null;
     mode: string;
-    constructor();
+    constructor({ webpackOutputFolder }?: {
+        webpackOutputFolder?: string | undefined;
+    });
+    handler(routePath: string): string;
+    get devMiddleware(): (req: any, res: any, next: any) => Promise<void>;
+    staticMiddleware(staticHandler?: (req: any, res: any, next: any) => void): (req: any, res: any, next: any) => void;
+    html(name?: string): any;
+    renderHtml(ejs: IRenderModule, options?: {}): (name: string, data?: any) => string;
+    setGlobals(object: object): string;
     private get jsonWebpackStats();
     private get outputPath();
     get ejsSyntaxOptions(): {
@@ -27,8 +36,5 @@ export declare class WebpackBridge {
         openDelimiter: string;
         closeDelimiter: string;
     };
-    html(name?: string): any;
-    renderHtml(ejs: IRenderModule, options?: {}): (name: string, data?: any) => string;
     private htmlFromDevMiddleware;
-    setGlobals(object: object): string;
 }
