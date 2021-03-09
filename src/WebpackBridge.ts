@@ -1,6 +1,6 @@
+import express from 'express';
 import * as fs from 'fs';
 import * as serialize from 'serialize-javascript';
-import { config } from './configStore';
 
 export interface IWebpackBridgeOptions {
   webpackOutputFolder: string;
@@ -18,37 +18,50 @@ export interface IRenderModule {
 
 export class NotFoundDevMiddlewareError extends Error {}
 
+function availableWebpackDevMiddleware(res: any) {
+  return res.locals && res.locals.webpack && res.locals.webpack.devMiddleware;
+}
 export class WebpackBridge {
-  webpackOutputFolder: string;
-  devMiddleware: IDevMiddleware | null;
-  mode: string;
+  public handlePaths: string[];
+  public webpackOutputFolder: string;
+  public webpackDevMiddleware: IDevMiddleware | null;
+  public mode: string;
 
-  constructor() {
-    this.webpackOutputFolder = config.options.webpackOutputFolder;
-    this.devMiddleware = config.devMiddleware;
-    this.mode = config.devMiddleware ? 'middleware' : 'static';
+  constructor({ webpackOutputFolder = '' } = {}) {
+    this.handlePaths = [];
+    this.webpackOutputFolder = webpackOutputFolder;
   }
 
-  private get jsonWebpackStats() {
-    if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
-    return this.devMiddleware.stats.toJson();
+  public handler(routePath: string) {
+    this.handlePaths = [...new Set([...this.handlePaths, routePath])];
+    return routePath;
   }
 
-  private get outputPath() {
-    if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
-    return this.jsonWebpackStats.outputPath;
+  public get devMiddleware() {
+    this.mode = 'devMiddleware';
+    return async (req: any, res: any, next: any) => {
+      if (availableWebpackDevMiddleware(res)) {
+        this.webpackDevMiddleware = res.locals.webpack.devMiddleware;
+        await next();
+      }
+    };
   }
 
-  get ejsSyntaxOptions() {
-    return {
-      delimiter: '%',
-      openDelimiter: '{',
-      closeDelimiter: '}',
+  public staticMiddleware(
+    staticHandler = (req: any, res: any, next: any) => {},
+  ) {
+    this.mode = 'static';
+    return (req: any, res: any, next: any) => {
+      if (this.handlePaths.includes(req.path)) {
+        next();
+      } else {
+        staticHandler(req, res, next);
+      }
     };
   }
 
   html(name = 'index.html') {
-    if (this.devMiddleware) {
+    if (this.webpackDevMiddleware) {
       return this.htmlFromDevMiddleware(name);
     } else {
       return fs.readFileSync(`${this.webpackOutputFolder}/${name}`, 'utf8');
@@ -66,20 +79,6 @@ export class WebpackBridge {
     };
   }
 
-  private htmlFromDevMiddleware(name: string) {
-    if (!this.devMiddleware) throw new NotFoundDevMiddlewareError();
-
-    if (!this.devMiddleware.outputFileSystem) {
-      throw new Error(
-        'webpack outputFileSystem is not available. Make sure set { index: true, serverSideRender: true } in webpackDevMiddleware',
-      );
-    }
-    return this.devMiddleware.outputFileSystem.readFileSync(
-      `${this.outputPath}/${name}`,
-      'utf8',
-    );
-  }
-
   setGlobals(object: object) {
     return Object.entries(object)
       .map(([key, value]) => {
@@ -87,5 +86,37 @@ export class WebpackBridge {
         return `window.${key} = JSON.parse('${data}')`;
       })
       .join('\n');
+  }
+
+  private get jsonWebpackStats() {
+    if (!this.webpackDevMiddleware) throw new NotFoundDevMiddlewareError();
+    return this.webpackDevMiddleware.stats.toJson();
+  }
+
+  private get outputPath() {
+    if (!this.webpackDevMiddleware) throw new NotFoundDevMiddlewareError();
+    return this.jsonWebpackStats.outputPath;
+  }
+
+  get ejsSyntaxOptions() {
+    return {
+      delimiter: '%',
+      openDelimiter: '{',
+      closeDelimiter: '}',
+    };
+  }
+
+  private htmlFromDevMiddleware(name: string) {
+    if (!this.webpackDevMiddleware) throw new NotFoundDevMiddlewareError();
+
+    if (!this.webpackDevMiddleware.outputFileSystem) {
+      throw new Error(
+        'webpack outputFileSystem is not available. Make sure set { index: true, serverSideRender: true } in webpackDevMiddleware',
+      );
+    }
+    return this.webpackDevMiddleware.outputFileSystem.readFileSync(
+      `${this.outputPath}/${name}`,
+      'utf8',
+    );
   }
 }

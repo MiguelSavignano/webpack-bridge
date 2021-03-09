@@ -2,6 +2,8 @@
 
 Make a bridge between client side and server side allowing use server variables in the generated html by webpack.
 
+In development environment webpack bridge read the html from `webpack-dev-middleware` for production read the html from the file sytem,
+
 ```
 -- client
 ---- index.js
@@ -18,13 +20,14 @@ Full Example:
 ```js
 // server/index.js
 const webpackDevmiddleware = require('webpack-dev-middleware');
-const { WebpackBridge, webpackBridgeMiddleware } = require('webpack-bridge');
+const { WebpackBridge } = require('webpack-bridge');
 
-// Load only for developments environments
+const webpackBridge = new WebpackBridge({ webpackOutputFolder: './dist' });
+
 if (process.env.NODE_ENV !== 'production') {
+  console.log('Apply webpack dev middleware');
   const webpack = require('webpack');
   const webpackDevmiddleware = require('webpack-dev-middleware');
-  const webpackConfig = require('./webpack.config');
 
   app.use(
     webpackDevmiddleware(webpack(webpackConfig), {
@@ -32,18 +35,12 @@ if (process.env.NODE_ENV !== 'production') {
       serverSideRender: true,
     }),
   );
+  app.use(webpackBridge.devMiddleware);
+} else {
+  app.use(webpackBridge.staticMiddleware(express.static('./dist')));
 }
 
-app.use(
-  webpackBridge({ webpackOutputFolder: './dist' }, () => {
-    // In production environment render the static assets if is necessary
-    app.use(express.static('./dist'));
-  }),
-);
-
-app.get('/', (req, res) => {
-  const webpackBridge = new WebpackBridge(res.webpackBridge);
-
+app.get(webpackBridge.handler('/'), (req, res) => {
   // Your server data
   const data = {
     lang: res.getHeaders().lang,
@@ -89,4 +86,4 @@ const htmlTemplate = webpackBridge.html('index.html'); // html bundled with webp
 TODO List
 
 - [ ] Add Css example
-- [ ] Build script helper
+- [ ] Build html in the server side
