@@ -15,16 +15,32 @@ describe('WebpackBridge', () => {
       },
     };
 
-    const options = {
-      webpackOutputFolder: 'webpackOutputFolder',
-    };
-    const webpackBridge = new WebpackBridge({
-      options,
-      devMiddleware: mockWebpackDevMiddleware,
-    });
+    const webpackBridge = new WebpackBridge();
+    webpackBridge.webpackDevMiddleware = mockWebpackDevMiddleware;
 
     test('html', () => {
-      expect(webpackBridge.html()).toBe('htmlTemplate');
+      expect(webpackBridge.html()).toEqual('htmlTemplate');
+    });
+
+    test('handler', () => {
+      expect(webpackBridge.handler('/')).toEqual('/');
+      expect(webpackBridge.handlePaths).toEqual(['/']);
+    });
+
+    test('staticMiddleware', (done) => {
+      webpackBridge.handler('/');
+      const middleware = webpackBridge.staticMiddleware(() => 'STATIC');
+      middleware({ path: '/' }, {}, () => {
+        done();
+      });
+    });
+
+    test('staticMiddleware with static', (done) => {
+      webpackBridge.handler('/');
+      const middleware = webpackBridge.staticMiddleware((req, res, next) =>
+        done(),
+      );
+      middleware({ path: '/app.js' }, {}, null);
     });
 
     test('setGlobals', () => {

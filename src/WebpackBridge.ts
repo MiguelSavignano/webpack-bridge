@@ -33,7 +33,7 @@ export class WebpackBridge {
   }
 
   public handler(routePath: string) {
-    this.handlePaths.push(routePath);
+    this.handlePaths = [...new Set([...this.handlePaths, routePath])];
     return routePath;
   }
 
