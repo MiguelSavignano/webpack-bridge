@@ -1,13 +1,15 @@
 const ejs = require('ejs');
 const fs = require('fs');
 const express = require('express');
-const { webpackBridge, WebpackBridge } = require('../../lib');
+const { WebpackBridge } = require('../../lib');
 const webpackConfig = require('../client/webpack.config');
 
 const app = express();
 
 console.log('*****', process.env.NODE_ENV);
 // Required for handler HTML in the server side
+
+const webpackBridge = new WebpackBridge({ webpackOutputFolder: './dist' })
 
 if (process.env.NODE_ENV !== 'production') {
   console.log('Apply webpack dev middleware');
@@ -20,17 +22,12 @@ if (process.env.NODE_ENV !== 'production') {
       serverSideRender: true,
     }),
   );
+  app.use(webpackBridge.devMiddleware);
+} else {
+  app.use(webpackBridge.staticMiddleware(express.static('./dist')));
 }
 
-app.use(
-  webpackBridge({ webpackOutputFolder: './dist' }, () => {
-    // In production environment render the static assets if is necessary
-    app.use(express.static('./dist'));
-  }),
-);
-
-app.get('/', (req, res) => {
-  const webpackBridge = new WebpackBridge();
+app.get(webpackBridge.handler('/'), (req, res) => {
   const data = {
     lang: res.getHeaders().lang,
     environment: process.env.NODE_ENV,
