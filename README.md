@@ -51,7 +51,7 @@ app.get(webpackBridge.handler('/'), (req, res) => {
     }),
   };
 
-  // Custom tags {%= variable %} for works with webpack html templaes
+  // Custom tags {%= variable %} for works with webpack html templates
   const html = webpackBridge.renderHtml(ejs)('index.html', data);
   res.send(html);
 });

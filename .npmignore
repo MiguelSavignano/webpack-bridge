@@ -1,0 +1,7 @@
+src
+.github
+example
+docs
+jest.config.js
+tsconfig.json
+.env
