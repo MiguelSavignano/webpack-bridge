@@ -5,6 +5,7 @@
   "main": "./lib/index.js",
   "scripts": {
     "test": "jest",
+    "lint": "",
     "build": "rimraf lib && tsc",
     "ts": "ts-node src/",
     "prepublishOnly": "npm run build"
