@@ -1,0 +1,52 @@
+name: Npm package
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - v*
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Nodejs 10.17
+        uses: actions/setup-node@master
+        with:
+          version: 10.17
+
+      - name: Install
+        run: npm ci
+
+      - name: Linter
+        run:  npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+  deploy:
+    if: contains(github.ref, 'refs/tags/v')
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Nodejs 10.17
+        uses: actions/setup-node@master
+        with:
+          version: 10.17
+
+      - name: Publish to Npm
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc
+          npm publish
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
